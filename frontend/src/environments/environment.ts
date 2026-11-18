@@ -14,16 +14,25 @@ export function getApiBaseUrl(): string {
     }
 
     const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') {
+    const port = window.location.port;
+
+    // Quando rodando desenvolvimento isolado localmente (Angular CLI na 4200 e backend na 3000)
+    if ((host === 'localhost' || host === '127.0.0.1') && port === '4200') {
       return 'http://localhost:3000';
     }
 
-    // Em produção na Vercel, o backend Serverless atende sob /api
+    // Em produção na Vercel ou via 'vercel dev' (mesma origem compartilhada):
+    // o tráfego é roteado pelo Vercel Services sob o prefixo /api
     return '/api';
   }
 
-  // Fallback para renderização no servidor (SSR / Prerendering)
-  return process.env['API_URL'] || 'http://localhost:3000';
+  // Fallback para renderização no servidor (SSR / Prerendering) via binding do Vercel Services
+  const boundBackendUrl =
+    process.env['BACKEND_URL'] ||
+    process.env['API_URL'] ||
+    'http://localhost:3000';
+
+  return boundBackendUrl.replace(/\/$/, '');
 }
 
 export const environment = {
