@@ -1,13 +1,16 @@
-$texto: #242d3c;
-$secundario: #536176;
+$texto: #1e293b;
+$secundario: #64748b;
 $azul: #758e9d;
-$borda: #e2e7ee;
+$azul-escuro: #5a7483;
+$borda: #e2e8f0;
+$fundo: #f8fafc;
 
 :host {
   display: block;
   min-height: 100vh;
-  background: #fff;
+  background: $fundo;
   color: $texto;
+  font-family: inherit;
 }
 
 a {
@@ -19,8 +22,8 @@ a,
 button,
 input {
   &:focus-visible {
-    outline: 3px solid #47748d;
-    outline-offset: 3px;
+    outline: 2px solid $azul;
+    outline-offset: 2px;
   }
 }
 
@@ -29,101 +32,138 @@ input {
   font: inherit;
 }
 
-.cabecalho-login {
-  padding: 20px 34px 10px;
+.login-wrapper {
+  width: min(calc(100% - 48px), 1040px);
+  margin-inline: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 0 48px;
+  box-sizing: border-box;
 }
 
-.marca {
-  display: inline-flex;
+// =====================================================
+// BARRA SUPERIOR (Botão Voltar e Assinatura Institucional)
+// =====================================================
+
+.barra-topo {
+  display: flex;
   align-items: center;
-  gap: 12px;
-
-  img {
-    display: block;
-    width: 73px;
-    height: 54px;
-    object-fit: cover;
-  }
-
-  > span {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  strong {
-    color: #708ca1;
-    font-size: 15px;
-    font-weight: 750;
-  }
-
-  small {
-    color: #52667b;
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.25px;
-  }
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
 .voltar {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 3px;
-  font-size: 18px;
+  gap: 10px;
+  padding: 8px 18px 8px 10px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid $borda;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition: all 180ms ease;
 
   &__icone {
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
-    border: 1px solid $borda;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    color: #7291a6;
+    background: #f1f5f9;
+    color: #475569;
+    transition: transform 180ms ease, background 180ms ease, color 180ms ease;
 
     svg {
-      width: 27px;
-      height: 27px;
+      width: 16px;
+      height: 16px;
     }
   }
 
   &:hover {
-    color: #52748c;
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
+
+    .voltar__icone {
+      transform: translateX(-3px);
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 }
 
-.login {
-  display: grid;
-  grid-template-columns: minmax(0, 0.89fr) minmax(0, 1fr);
-  align-items: start;
-  gap: 86px;
-  width: min(calc(100% - 64px), 1030px);
-  margin: 30px auto 85px;
+.marca-compacta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+
+  strong {
+    color: $azul;
+    font-size: 13px;
+    font-weight: 750;
+    letter-spacing: 0.2px;
+  }
+
+  small {
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
 }
 
+// =====================================================
+// CONTEÚDO PRINCIPAL (Grid 2 colunas)
+// =====================================================
+
+.login {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: 68px;
+}
+
+// Coluna Esquerda: Apresentação
 .etiqueta {
-  display: inline-block;
-  padding: 6px 11px;
-  border-radius: 6px;
-  background: #d1dbe1;
-  color: #18232b;
-  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: #dbe4ea;
+  color: #274052;
+  font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .apresentacao {
   h1 {
-    margin: 23px 0 25px;
-    font-size: clamp(36px, 3.5vw, 44px);
+    margin: 20px 0 22px;
+    font-size: clamp(32px, 3.2vw, 42px);
     font-weight: 750;
     line-height: 1.18;
-    letter-spacing: -1.4px;
+    letter-spacing: -1.2px;
+    color: #0f172a;
   }
 
   &__descricao {
     margin: 0;
     color: $secundario;
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.65;
   }
 }
@@ -131,14 +171,15 @@ input {
 .dica {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  margin-top: 22px;
-  padding: 17px 16px;
-  border-radius: 11px;
+  gap: 14px;
+  margin-top: 28px;
+  padding: 16px 18px;
+  border-radius: 14px;
   background: #4d7f91;
   color: #fff;
+  box-shadow: 0 4px 14px rgba(77, 127, 145, 0.2);
 
-  > span {
+  &__icone {
     flex-shrink: 0;
     font-size: 18px;
     line-height: 1.4;
@@ -146,67 +187,84 @@ input {
 
   p {
     margin: 0;
-    color: #eef5f8;
-    font-size: 12px;
+    color: #f1f5f9;
+    font-size: 13px;
     line-height: 1.55;
   }
 }
 
+// Coluna Direita: Cartão de Login
 .cartao-login {
-  padding: 34px 36px 12px;
+  padding: 38px 36px 32px;
   border: 1px solid $borda;
-  border-radius: 23px;
-  background: #fff;
-  box-shadow: 0 9px 25px #263c5004;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
 
-  h2 {
-    margin: 0 0 7px;
-    font-size: 26px;
-    font-weight: 750;
-    letter-spacing: -0.7px;
+  &__cabecalho {
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      font-weight: 750;
+      letter-spacing: -0.6px;
+      color: #0f172a;
+    }
   }
 
   &__descricao {
-    margin: 0 0 23px;
+    margin: 0;
     color: $secundario;
-    font-size: 12px;
-    line-height: 1.45;
+    font-size: 13px;
+    line-height: 1.5;
   }
 }
 
+// =====================================================
+// FORMULÁRIO E CAMPOS
+// =====================================================
+
 .campo {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 
   label {
     display: block;
-    margin-bottom: 6px;
-    font-size: 12px;
+    margin-bottom: 7px;
+    font-size: 13px;
     font-weight: 500;
+    color: #334155;
   }
 
   input {
     display: block;
     width: 100%;
-    min-height: 44px;
-    padding: 11px 14px;
-    border: 1px solid $borda;
-    border-radius: 10px;
-    background: #fff;
+    box-sizing: border-box;
+    min-height: 46px;
+    padding: 12px 14px;
+    border: 1.5px solid $borda;
+    border-radius: 12px;
+    background: #ffffff;
     color: $texto;
-    font-size: 12px;
-    transition: border-color 150ms ease;
+    font-size: 14px;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
 
     &::placeholder {
-      color: #677387;
-      opacity: 1;
+      color: #94a3b8;
     }
 
     &:focus {
-      border-color: #7595aa;
+      outline: none;
+      border-color: $azul;
+      box-shadow: 0 0 0 3px rgba(117, 142, 157, 0.2);
     }
 
     &.invalido {
-      border-color: #c54e4e;
+      border-color: #ef4444;
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+      }
     }
   }
 }
@@ -215,14 +273,14 @@ input {
   position: relative;
 
   input {
-    padding-right: 13px;
+    padding-right: 46px;
   }
 }
 
 .mostrar-senha {
   position: absolute;
   top: 50%;
-  right: 5px;
+  right: 6px;
   display: grid;
   place-items: center;
   width: 36px;
@@ -230,113 +288,157 @@ input {
   padding: 0;
   transform: translateY(-50%);
   border: 0;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
-  color: #59677a;
+  color: #64748b;
   cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
 
   svg {
-    width: 19px;
-    height: 19px;
+    width: 20px;
+    height: 20px;
   }
 
   &:hover {
-    background: #f0f4f7;
+    background: #f1f5f9;
+    color: #0f172a;
   }
 }
 
 .entrar {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  min-height: 45px;
-  margin-top: 22px;
-  padding: 12px;
+  min-height: 48px;
+  margin-top: 24px;
+  padding: 13px;
   border: 0;
-  border-radius: 11px;
+  border-radius: 12px;
   background: $azul;
   color: #fff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 150ms ease;
+  box-shadow: 0 4px 12px rgba(117, 142, 157, 0.25);
+  transition: background 150ms ease, transform 100ms ease, opacity 150ms ease;
 
-  &:hover {
-    background: #627f90;
+  &:hover:not(:disabled) {
+    background: $azul-escuro;
   }
 
-  &:active {
-    background: #526f80;
+  &:active:not(:disabled) {
+    transform: scale(0.99);
+  }
+
+  &:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: girar 600ms linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
   }
 }
 
 .erro {
   display: block;
   margin-top: 6px;
-  color: #b53b3b;
-  font-size: 11px;
+  color: #dc2626;
+  font-size: 12px;
 }
 
 .mensagem {
-  margin: 16px 0 8px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #eaf1f6;
-  color: #42647d;
-  font-size: 12px;
-  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #991b1b;
+  font-size: 13px;
+  line-height: 1.5;
+
+  &__icone {
+    font-size: 15px;
+    flex-shrink: 0;
+  }
 }
 
-@media (max-width: 1000px) {
+// =====================================================
+// RESPONSIVIDADE
+// =====================================================
+
+@media (max-width: 960px) {
   .login {
-    gap: 45px;
+    gap: 40px;
   }
 
   .cartao-login {
-    padding: 28px 25px 16px;
+    padding: 32px 28px 28px;
   }
 }
 
-@media (max-width: 700px) {
-  .cabecalho-login {
-    padding: 18px 20px 12px;
+@media (max-width: 768px) {
+  .login-wrapper {
+    padding: 20px 0 36px;
   }
 
-  .marca {
-    gap: 9px;
+  .barra-topo {
+    margin-bottom: 24px;
+  }
 
-    img {
-      width: 54px;
-      height: 42px;
-    }
-
+  .marca-compacta {
     strong {
       font-size: 11px;
     }
 
     small {
-      font-size: 7px;
+      font-size: 9px;
     }
-  }
-
-  .voltar {
-    margin-left: 18px;
-    font-size: 15px;
   }
 
   .login {
     grid-template-columns: 1fr;
-    gap: 32px;
-    width: calc(100% - 40px);
-    max-width: 480px;
-    margin-top: 28px;
-    margin-bottom: 45px;
+    gap: 28px;
+    max-width: 460px;
+    margin-inline: auto;
+    width: 100%;
   }
 
-  .apresentacao h1 {
-    font-size: 37px;
+  .apresentacao {
+    text-align: center;
+
+    h1 {
+      font-size: 28px;
+      margin: 14px 0 12px;
+    }
+
+    &__descricao {
+      font-size: 14px;
+    }
+
+    .dica {
+      display: none;
+    }
   }
 
   .cartao-login {
-    padding: 26px 22px 20px;
+    padding: 26px 22px 24px;
   }
 }

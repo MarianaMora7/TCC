@@ -18,6 +18,7 @@ export class Login {
   senha = '';
   mostrarSenha = false;
   mensagem = '';
+  carregando = false;
 
   alternarSenha(): void {
     this.mostrarSenha = !this.mostrarSenha;
@@ -31,8 +32,10 @@ export class Login {
       return;
     }
 
+    this.carregando = true;
     this.auth.entrar(this.email, this.senha).subscribe({
       next: (sucesso) => {
+        this.carregando = false;
         if (!sucesso) {
           this.mensagem = 'E-mail ou senha incorretos.';
           return;
@@ -42,6 +45,7 @@ export class Login {
         void this.router.navigateByUrl('/admin/inicio');
       },
       error: () => {
+        this.carregando = false;
         this.mensagem = 'Erro de conexão com o servidor. Tente novamente.';
       },
     });
