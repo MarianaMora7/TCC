@@ -1,19 +1,59 @@
 const mysql = require('mysql2/promise');
-const bcrypt = require('bcrypt');
+
+let bcrypt;
+try {
+  bcrypt = require('bcrypt');
+} catch {
+  bcrypt = require('bcryptjs');
+}
+
+let dbHost = process.env.DB_HOST || '127.0.0.1';
+let dbUser = process.env.DB_USER || 'root';
+let dbPassword = process.env.DB_PASSWORD;
+let dbName = process.env.DB_NAME || 'monsenhor_bicudo';
+let dbPort = Number(process.env.DB_PORT) || 3306;
+let dbSsl = undefined;
+
+if (process.env.DB_SSL === 'true' || process.env.DB_SSL === 'require') {
+  dbSsl = { rejectUnauthorized: false };
+}
+
+if (process.env.DATABASE_URL) {
+  try {
+    const parsed = new URL(process.env.DATABASE_URL);
+    dbHost = parsed.hostname;
+    dbPort = Number(parsed.port) || 3306;
+    dbUser = decodeURIComponent(parsed.username || '');
+    if (parsed.password) {
+      dbPassword = decodeURIComponent(parsed.password);
+    }
+    const cleanDb = parsed.pathname.replace(/^\//, '');
+    if (cleanDb) {
+      dbName = cleanDb;
+    }
+    const sslParam = parsed.searchParams.get('ssl') || parsed.searchParams.get('sslmode') || parsed.searchParams.get('ssl-mode');
+    if (sslParam) {
+      dbSsl = { rejectUnauthorized: false };
+    }
+  } catch (err) {
+    console.warn('⚠️ Falha ao analisar DATABASE_URL:', err.message);
+  }
+}
 
 const DB_CONFIG = {
-  host: process.env.DB_HOST || '127.0.0.1',
-  user: process.env.DB_USER || 'root',
-  database: process.env.DB_NAME || 'monsenhor_bicudo',
-  port: Number(process.env.DB_PORT) || 3306,
+  host: dbHost,
+  user: dbUser,
+  database: dbName,
+  port: dbPort,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  ...(dbSsl ? { ssl: dbSsl } : {})
 };
 
 // Senhas a tentar na ordem de prioridade
-const SENHAS_PARA_TENTAR = process.env.DB_PASSWORD !== undefined
-  ? [process.env.DB_PASSWORD]
+const SENHAS_PARA_TENTAR = dbPassword !== undefined
+  ? [dbPassword]
   : ['root', '123456', ''];
 
 let pool = null;
@@ -27,7 +67,8 @@ async function encontrarConexaoValida() {
         host: DB_CONFIG.host,
         user: DB_CONFIG.user,
         password: senha,
-        port: DB_CONFIG.port
+        port: DB_CONFIG.port,
+        ...(DB_CONFIG.ssl ? { ssl: DB_CONFIG.ssl } : {})
       });
       await conexao.ping();
       await conexao.end();
@@ -47,13 +88,13 @@ async function encontrarConexaoValida() {
   if (primeiroErro && primeiroErro.code === 'ECONNREFUSED') {
     throw new Error(
       `Não foi possível conectar ao MySQL em ${DB_CONFIG.host}:${DB_CONFIG.port} (Conexão recusada / ECONNREFUSED).\n` +
-      `💡 Verifique se o serviço do MySQL ou o container Docker está ativo no seu computador.`
+        `💡 Se estiver na Vercel, certifique-se de configurar as variáveis de ambiente (DB_HOST, DB_USER, DB_PASSWORD ou DATABASE_URL) apontando para um banco MySQL em nuvem.`
     );
   }
 
   throw new Error(
     `Não foi possível autenticar no MySQL (${DB_CONFIG.user}@${DB_CONFIG.host}:${DB_CONFIG.port}).\n` +
-    `💡 Defina a variável de ambiente DB_PASSWORD com a senha do MySQL (ex: DB_PASSWORD=suasenha npm start).`
+      `💡 Defina a variável de ambiente DB_PASSWORD ou DATABASE_URL com as credenciais corretas.`
   );
 }
 
@@ -61,19 +102,24 @@ async function initDb() {
   try {
     const senha = await encontrarConexaoValida();
 
-    // 1. Cria o banco se não existir
-    const connInicial = await mysql.createConnection({
-      host: DB_CONFIG.host,
-      user: DB_CONFIG.user,
-      password: senha,
-      port: DB_CONFIG.port
-    });
+    // 1. Cria o banco se não existir (se o usuário tiver permissão; ignora em bancos restritos)
+    try {
+      const connInicial = await mysql.createConnection({
+        host: DB_CONFIG.host,
+        user: DB_CONFIG.user,
+        password: senha,
+        port: DB_CONFIG.port,
+        ...(DB_CONFIG.ssl ? { ssl: DB_CONFIG.ssl } : {})
+      });
 
-    await connInicial.query(`
-      CREATE DATABASE IF NOT EXISTS \`${DB_CONFIG.database}\`
-      CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-    `);
-    await connInicial.end();
+      await connInicial.query(`
+        CREATE DATABASE IF NOT EXISTS \`${DB_CONFIG.database}\`
+        CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      `);
+      await connInicial.end();
+    } catch (errDb) {
+      console.log(`ℹ️ [DB] Criação de banco de dados ignorada (${errDb.message}). Prosseguindo com o banco existente.`);
+    }
 
     // 2. Inicializa o pool conectado ao banco
     pool = mysql.createPool({
@@ -191,7 +237,7 @@ async function migrarTabelasExistentes() {
   // Preencher publicado com a data do aviso caso já existam registros legados com publicado nulo
   try {
     await pool.query(`UPDATE Aviso SET publicado = data WHERE publicado IS NULL`);
-  } catch (e) {}
+  } catch (e) { }
 
   // Garantir colunas de Evento
   await garantirColuna('Evento', 'cor', 'VARCHAR(50) DEFAULT \'azul\'');

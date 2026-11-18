@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { Aviso, DadosEscolaService } from './dados-escola.service';
 import { CalendarioService } from './calendario.service';
+import { environment } from '../../environments/environment';
 
 export interface AvisoAdministrativo extends Aviso {
   status: 'Publicado' | 'Rascunho';
@@ -80,7 +81,9 @@ function mapearDoBackend(item: AvisoBackend): AvisoAdministrativo {
 @Injectable({ providedIn: 'root' })
 export class AvisosService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/avisos';
+  private get apiUrl(): string {
+    return `${environment.apiUrl}/avisos`;
+  }
   private readonly exemplos = inject(DadosEscolaService);
   private readonly calendario = inject(CalendarioService);
 

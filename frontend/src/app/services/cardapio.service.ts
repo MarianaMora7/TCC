@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 // =====================================================
 // INTERFACES DOS DADOS DO CARDÁPIO
@@ -53,7 +54,9 @@ function copiar(semana: SelecaoSemana): SelecaoSemana {
 })
 export class CardapioService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/cardapio';
+  private get apiUrl(): string {
+    return `${environment.apiUrl}/cardapio`;
+  }
 
   // Configuração dos 5 dias letivos da semana (Segunda a Sexta)
   readonly dias: DiaSemana[] = this.calcularDiasSemana();
@@ -210,7 +213,7 @@ export class CardapioService {
           }
         });
       },
-      error: () => {},
+      error: () => { },
     });
   }
 

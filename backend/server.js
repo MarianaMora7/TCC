@@ -1,6 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
+
+let bcrypt;
+try {
+  bcrypt = require('bcrypt');
+} catch {
+  bcrypt = require('bcryptjs');
+}
 
 const db = require('./db');
 
@@ -8,6 +14,16 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Normaliza rotas com prefixo /api (usado na Vercel e chamadas de produção)
+app.use((req, res, next) => {
+  if (req.url === '/api') {
+    req.url = '/';
+  } else if (req.url.startsWith('/api/')) {
+    req.url = req.url.slice(4);
+  }
+  next();
+});
 
 
 // =====================================================
@@ -1603,8 +1619,14 @@ async function startServer() {
     });
   } catch (err) {
     console.error('❌ Falha crítica ao inicializar o servidor:', err.message || err);
-    process.exit(1);
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   }
 }
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = app;

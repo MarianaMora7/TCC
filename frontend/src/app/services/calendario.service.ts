@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { DadosEscolaService } from './dados-escola.service';
+import { environment } from '../../environments/environment';
 
 export interface Evento {
   id: number;
@@ -59,8 +60,12 @@ function mapearDoBackend(item: EventoBackend): Evento {
 @Injectable({ providedIn: 'root' })
 export class CalendarioService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/eventos';
-  private readonly apiUrlCardapio = 'http://localhost:3000/cardapio/dias-cadastrados';
+  private get apiUrl(): string {
+    return `${environment.apiUrl}/eventos`;
+  }
+  private get apiUrlCardapio(): string {
+    return `${environment.apiUrl}/cardapio/dias-cadastrados`;
+  }
   private readonly dadosEscola = inject(DadosEscolaService);
 
   private readonly listaEventos = signal<Evento[]>(

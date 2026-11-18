@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Sistema Monsenhor Bicudo - Frontend Angular e Backend Node.js/Express",
   "scripts": {
+    "build": "npm --prefix frontend run build && node scripts/post-build.js",
+    "vercel-build": "npm run build",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "start": "node backend/server.js",
     "start:backend": "node backend/server.js",
     "start:frontend": "npm --prefix frontend start",
@@ -10,6 +13,13 @@
     "dev:backend": "node backend/server.js",
     "dev:frontend": "npm --prefix frontend start",
     "test:backend": "node backend/test-crud.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mysql2": "^3.24.4"
   },
   "keywords": [],
   "author": "",
