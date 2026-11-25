@@ -1,30 +1,32 @@
-<header class="cabecalho">
+<header class="cabecalho" role="banner">
   <div class="container cabecalho__conteudo">
-    <a class="marca" routerLink="/admin/inicio">
-  
+    <a class="marca" routerLink="/admin/inicio" aria-label="Painel Administrativo da E.E. Monsenhor Bicudo">
       <span>
         <strong>E.E. MONSENHOR BICUDO</strong>
-        <small>ESCOLA PÚBLICA ESTADUAL</small>
+        <small>PAINEL ADMINISTRATIVO</small>
       </span>
     </a>
 
-    <nav aria-label="Menu administrativo">
+    <nav aria-label="Menu de navegação administrativa">
       <a routerLink="/admin/inicio">Início</a>
-      <a routerLink="/admin/cardapio" class="ativo" aria-current="page">
-        Cardápio
-      </a>
+      <a routerLink="/admin/cardapio" class="ativo" aria-current="page">Cardápio</a>
       <a routerLink="/admin/avisos">Avisos</a>
       <a routerLink="/admin/calendario">Calendário</a>
       <a routerLink="/admin/sobre">Sobre Nós</a>
     </nav>
 
-    <button class="sair" type="button" (click)="sair()">Sair</button>
+    <div class="acoes-cabecalho">
+      <app-botao-acessibilidade></app-botao-acessibilidade>
+      <button class="sair" type="button" aria-label="Sair da sessão administrativa" (click)="sair()">
+        Sair
+      </button>
+    </div>
   </div>
 </header>
 
-<main class="container conteudo">
+<main id="conteudo-principal" tabindex="-1" class="container conteudo">
   <header class="titulo">
-    <div class="titulo__status">
+    <div class="titulo__status" role="status">
       <span>CONTROLE INTERNO</span>
       <small>Modo de Edição Ativo</small>
     </div>
@@ -32,133 +34,165 @@
     <h1>Gerenciar Cardápio da Semana</h1>
 
     <p>
-      Atualize os pratos, lanches e informações nutricionais servidas
-      diariamente aos estudantes de tempo integral.
+      Selecione os alimentos para cada refeição diária. As alterações permanecem em rascunho seguro e <strong>só aparecem no cardápio público dos estudantes quando você clicar no botão "Publicar Cardápio da Semana"</strong>.
     </p>
   </header>
 
-  <div class="seletor">
-    <button class="seta" type="button" aria-label="Dia anterior" [disabled]="diaSelecionado === 0"
-      (click)="selecionarDia(diaSelecionado - 1)">
-      ‹
+  <div class="seletor" role="region" aria-label="Seletor de dias letivos">
+    <button
+      class="seta"
+      type="button"
+      aria-label="Ir para o dia anterior"
+      [disabled]="diaSelecionado === 0"
+      (click)="selecionarDia(diaSelecionado - 1)"
+    >
+      <span aria-hidden="true">‹</span>
     </button>
 
-    <div class="dias" role="group" aria-label="Selecione o dia">
+    <div class="dias" role="tablist" aria-label="Dias da semana">
       @for (dia of cardapio.dias; track dia.data; let i = $index) {
-      <button type="button" class="dia" [class.ativo]="diaSelecionado === i" [attr.aria-pressed]="diaSelecionado === i"
-        (click)="selecionarDia(i)">
-        <span>{{ dia.nome }}</span>
-        <strong>{{ dia.data }}</strong>
-      </button>
+        <button
+          type="button"
+          role="tab"
+          class="dia"
+          [id]="'tab-admin-dia-' + i"
+          [class.ativo]="diaSelecionado === i"
+          [attr.aria-selected]="diaSelecionado === i"
+          [attr.aria-label]="dia.titulo"
+          (click)="selecionarDia(i)"
+        >
+          <span class="dia__nome">{{ dia.nome }}</span>
+          <strong class="dia__data">{{ dia.data }}</strong>
+          @if (diaSelecionado === i) {
+            <span class="dia__marcador" aria-hidden="true">●</span>
+          }
+        </button>
       }
     </div>
 
-    <button class="seta" type="button" aria-label="Próximo dia" [disabled]="diaSelecionado === cardapio.dias.length - 1"
-      (click)="selecionarDia(diaSelecionado + 1)">
-      ›
+    <button
+      class="seta"
+      type="button"
+      aria-label="Ir para o próximo dia"
+      [disabled]="diaSelecionado === cardapio.dias.length - 1"
+      (click)="selecionarDia(diaSelecionado + 1)"
+    >
+      <span aria-hidden="true">›</span>
     </button>
   </div>
 
   <div class="editando" aria-live="polite">
-    <span aria-hidden="true">▣</span>
-    <strong>Editando Cardápio de: {{ diaAtual.titulo }}</strong>
+    <span aria-hidden="true" class="editando__icone">▣</span>
+    <strong>Editando Seleções de: {{ diaAtual.titulo }}</strong>
   </div>
 
-  <section class="refeicoes" aria-label="Seleção de refeições">
+  <section class="refeicoes" aria-label="Edição de refeições do dia">
     @for (refeicao of cardapio.refeicoes; track refeicao.id) {
-    <article class="refeicao">
-      <header class="refeicao__cabecalho">
-        <span class="refeicao__icone" aria-hidden="true">
-          @if (refeicao.id === 'almoco') {
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M4 3v6a3 3 0 0 0 6 0V3M7 3v18M18 3v18" />
-            <path d="M18 3c-4 2-4 8 0 9" />
-          </svg>
-          } @else {
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            stroke-linejoin="round">
-            <path d="M4 8h12v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4Z" />
-            <path d="M16 9h2a3 3 0 0 1 0 6h-2M7 3v2M11 2v3M15 3v2" />
-          </svg>
-          }
-        </span>
+      <article class="refeicao" [attr.aria-labelledby]="'admin-ref-titulo-' + refeicao.id">
+        <header class="refeicao__cabecalho">
+          <span class="refeicao__icone" aria-hidden="true">
+            @if (refeicao.id === 'almoco') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="M4 3v6a3 3 0 0 0 6 0V3M7 3v18M18 3v18" />
+                <path d="M18 3c-4 2-4 8 0 9" />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="M4 8h12v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4Z" />
+                <path d="M16 9h2a3 3 0 0 1 0 6h-2M7 3v2M11 2v3M15 3v2" />
+              </svg>
+            }
+          </span>
 
-        <div>
-          <h2>{{ refeicao.titulo }}</h2>
-          <p>Horário: <strong>{{ refeicao.horario }}</strong></p>
+          <div>
+            <h2 [id]="'admin-ref-titulo-' + refeicao.id">{{ refeicao.titulo }}</h2>
+            <p>Horário: <strong>{{ refeicao.horario }}</strong></p>
+          </div>
+        </header>
+
+        <fieldset>
+          <legend>SELECIONE OS ALIMENTOS DO DIA</legend>
+
+          <div class="opcoes">
+            @for (alimento of refeicao.opcoes; track alimento) {
+              <label class="opcao" [class.marcado]="cardapio.selecionado(diaSelecionado, refeicao.id, alimento)">
+                <input
+                  #checkbox
+                  type="checkbox"
+                  [checked]="cardapio.selecionado(diaSelecionado, refeicao.id, alimento)"
+                  (change)="alterar(refeicao.id, alimento, checkbox.checked)"
+                />
+
+                <span class="opcao__texto">{{ alimento }}</span>
+              </label>
+            }
+          </div>
+        </fieldset>
+
+        <div class="botoes-refeicao">
+          <button
+            class="salvar"
+            type="button"
+            [attr.aria-label]="'Salvar rascunho de ' + refeicao.titulo"
+            (click)="salvar(refeicao.id, refeicao.titulo)"
+          >
+            <span aria-hidden="true">✔</span>
+            Salvar Seleção
+          </button>
+
+          <button
+            class="adicionar-alimento"
+            type="button"
+            [attr.aria-expanded]="adicionandoRefeicao === refeicao.id"
+            [attr.aria-controls]="'novo-alimento-' + refeicao.id"
+            (click)="abrirAdicionar(refeicao.id)"
+          >
+            <span aria-hidden="true">＋</span>
+            Adicionar alimento
+          </button>
         </div>
-      </header>
 
-      <fieldset>
-        <legend>SELECIONE OS ITENS DO DIA</legend>
+        @if (adicionandoRefeicao === refeicao.id) {
+          <div class="novo-alimento" [id]="'novo-alimento-' + refeicao.id" role="region" [attr.aria-label]="'Adicionar novo alimento para ' + refeicao.titulo">
+            <label [for]="'nome-alimento-' + refeicao.id">
+              Nome do novo alimento:
+            </label>
 
-        <div class="opcoes">
-          @for (alimento of refeicao.opcoes; track alimento) {
-          <label class="opcao">
-            <input #checkbox type="checkbox" [checked]="
-                      cardapio.selecionado(
-                        diaSelecionado,
-                        refeicao.id,
-                        alimento
-                      )
-                    " (change)="
-                      alterar(refeicao.id, alimento, checkbox.checked)
-                    " />
+            <input
+              #nomeAlimento
+              [id]="'nome-alimento-' + refeicao.id"
+              type="text"
+              placeholder="Ex: Fruta picada, Suco de acerola"
+              maxlength="80"
+              [attr.aria-invalid]="!!erroAlimento"
+              [attr.aria-describedby]="erroAlimento ? 'erro-alimento-' + refeicao.id : null"
+              (keydown.enter)="$event.preventDefault(); adicionarAlimento(refeicao.id, nomeAlimento)"
+            />
 
-            <span>{{ alimento }}</span>
-          </label>
-          }
-        </div>
-      </fieldset>
+            @if (erroAlimento) {
+              <small class="erro-alimento" [id]="'erro-alimento-' + refeicao.id" role="alert">
+                <span aria-hidden="true">⚠️</span> {{ erroAlimento }}
+              </small>
+            }
 
-      <button class="salvar" type="button" [attr.aria-label]="'Salvar seleção de ' + refeicao.titulo"
-        (click)="salvar(refeicao.id, refeicao.titulo)">
-        <span aria-hidden="true">＋</span>
-        Salvar Seleção
-      </button>
+            <div class="novo-alimento__acoes">
+              <button class="cancelar-alimento" type="button" (click)="cancelarAdicionar()">
+                Cancelar
+              </button>
 
-      <button class="adicionar-alimento" type="button" [attr.aria-expanded]="adicionandoRefeicao === refeicao.id"
-        [attr.aria-controls]="'novo-alimento-' + refeicao.id" (click)="abrirAdicionar(refeicao.id)">
-        ＋ Adicionar alimento
-      </button>
-
-      @if (adicionandoRefeicao === refeicao.id) {
-      <div class="novo-alimento" [id]="'novo-alimento-' + refeicao.id">
-        <label [for]="'nome-alimento-' + refeicao.id">
-          Nome do alimento
-        </label>
-
-        <input #nomeAlimento [id]="'nome-alimento-' + refeicao.id" type="text" placeholder="Ex: Pão integral"
-          maxlength="80" [attr.aria-invalid]="!!erroAlimento" [attr.aria-describedby]="
-        erroAlimento ? 'erro-alimento-' + refeicao.id : null
-      " (keydown.enter)="
-        $event.preventDefault();
-        adicionarAlimento(refeicao.id, nomeAlimento)
-      " />
-
-        @if (erroAlimento) {
-        <small class="erro-alimento" [id]="'erro-alimento-' + refeicao.id" role="alert">
-          {{ erroAlimento }}
-        </small>
+              <button class="confirmar-alimento" type="button" (click)="adicionarAlimento(refeicao.id, nomeAlimento)">
+                Adicionar e Selecionar
+              </button>
+            </div>
+          </div>
         }
 
-        <div class="novo-alimento__acoes">
-          <button class="cancelar-alimento" type="button" (click)="cancelarAdicionar()">
-            Cancelar
-          </button>
-
-          <button class="confirmar-alimento" type="button" (click)="adicionarAlimento(refeicao.id, nomeAlimento)">
-            Adicionar
-          </button>
-        </div>
-      </div>
-      }
-
-      @if (cardapio.temAlteracoes(diaSelecionado, refeicao.id)) {
-      <small class="pendente">Alterações não salvas</small>
-      }
-    </article>
+        @if (cardapio.temAlteracoes(diaSelecionado, refeicao.id)) {
+          <small class="pendente" role="status">
+            <span aria-hidden="true">✎</span> Alterações no rascunho (não publicadas)
+          </small>
+        }
+      </article>
     }
   </section>
 
@@ -169,30 +203,34 @@
       <div>
         <h2 id="titulo-publicacao">Pronto para atualizar a comunidade?</h2>
         <p>
-          Ao publicar, as seleções salvas da semana serão exibidas
-          na página pública de Cardápio.
+          Ao clicar abaixo, <strong>todos os alimentos selecionados da semana serão oficialmente publicados</strong> e passarão a ser exibidos na página pública de Cardápio.
         </p>
       </div>
     </div>
 
-    <button type="button" (click)="publicar()">
+    <button type="button" class="btn-publicar" (click)="publicar()" aria-label="Publicar cardápio da semana na página pública">
       <span aria-hidden="true">◎</span>
       Publicar Cardápio da Semana
     </button>
   </section>
 
   @if (mensagem) {
-  <div class="mensagem" [class.erro]="erro" role="status">
-    <p>{{ mensagem }}</p>
+    <div class="mensagem" [class.erro]="erro" role="status" aria-live="polite">
+      <div class="mensagem__conteudo">
+        <span aria-hidden="true" class="mensagem__icone">{{ erro ? '⚠️' : '✅' }}</span>
+        <p>{{ mensagem }}</p>
+      </div>
 
-    @if (!erro) {
-    <a routerLink="/cardapio">Ver página pública de Cardápio →</a>
-    }
-  </div>
+      @if (!erro) {
+        <a routerLink="/cardapio" class="mensagem__link">
+          Ver página pública de Cardápio →
+        </a>
+      }
+    </div>
   }
 </main>
 
-<footer class="rodape">
+<footer class="rodape" role="contentinfo">
   <div class="container">
     <div class="rodape__grade">
       <div>
@@ -205,15 +243,15 @@
 
       <div>
         <h3>Contato</h3>
-        <p>☎ (14) 3433-1610</p>
-        <p>✉ monsenhorbicudo&#64;educacao.sp.gov.br</p>
+        <p><span aria-hidden="true">☎</span> (14) 3433-1610</p>
+        <p><span aria-hidden="true">✉</span> monsenhorbicudo&#64;educacao.sp.gov.br</p>
       </div>
 
       <div>
         <h3>Endereço</h3>
         <p>
-          Av. Rio Branco, 803 - Sen. Salgado Filho, Marília - SP,<br />
-          17509-013
+          Av. Rio Branco, 803 - Sen. Salgado Filho,<br />
+          Marília - SP, 17509-013
         </p>
       </div>
     </div>
@@ -223,7 +261,7 @@
         © 2026 E.E. Monsenhor Bicudo. Secretaria da Educação - São Paulo.
       </p>
 
-      <div>
+      <nav aria-label="Links de políticas">
         <button type="button" (click)="tituloInformacao = 'Portal de Privacidade'; informacao.showModal()">
           Portal de Privacidade
         </button>
@@ -231,13 +269,13 @@
         <button type="button" (click)="tituloInformacao = 'Termos de Uso'; informacao.showModal()">
           Termos de Uso
         </button>
-      </div>
+      </nav>
     </div>
   </div>
 </footer>
 
 <dialog #informacao class="modal" aria-labelledby="titulo-informacao">
   <h2 id="titulo-informacao">{{ tituloInformacao }}</h2>
-  <p>Este conteúdo ainda será disponibilizado pela escola.</p>
+  <p>Este conteúdo informativo oficial será disponibilizado pela escola.</p>
   <button type="button" (click)="informacao.close()">Fechar</button>
 </dialog>

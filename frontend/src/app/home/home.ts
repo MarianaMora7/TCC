@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { BotaoAcessibilidade } from '../compartilhados/botao-acessibilidade/botao-acessibilidade';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive, BotaoAcessibilidade],
   selector: 'app-home',
   styleUrl: './home.scss',
   templateUrl: './home.html',

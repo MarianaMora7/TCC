@@ -90,6 +90,12 @@ a:focus-visible {
   }
 }
 
+.acoes-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .botao-admin {
   padding: 7px 15px;
   border-radius: 6px;

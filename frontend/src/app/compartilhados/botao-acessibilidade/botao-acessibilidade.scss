@@ -1,0 +1,268 @@
+.acessibilidade-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.botao-gatilho {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid #d4dfe8;
+  border-radius: 6px;
+  background: #f0f5f9;
+  color: #496377;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 150ms ease;
+  white-space: nowrap;
+
+  .icone-acessibilidade {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  &:hover,
+  &.ativo {
+    background: #e2ecf3;
+    border-color: #758e9d;
+    color: #285879;
+  }
+
+  &:focus-visible {
+    outline: 3px solid #315a7d;
+    outline-offset: 2px;
+  }
+}
+
+.painel-acessibilidade {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 2000;
+  width: 290px;
+  padding: 16px;
+  border: 1px solid #cbdbe8;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(23, 34, 56, 0.16);
+  animation: surgimento 150ms ease;
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2edf5;
+    margin-bottom: 12px;
+  }
+
+  &__titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #204c6e;
+    font-weight: 800;
+
+    span {
+      font-size: 16px;
+    }
+  }
+
+  .btn-fechar {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 50%;
+    background: #edf3f8;
+    color: #556c80;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+      background: #dfe9f2;
+      color: #172238;
+    }
+  }
+
+  &__corpo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.opcao-acessibilidade {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e3edf5;
+  border-radius: 10px;
+  background: #f7fafc;
+  cursor: pointer;
+  text-align: left;
+  transition: all 120ms ease;
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__icone {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  &__nome {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1f374a;
+  }
+
+  small {
+    display: block;
+    font-size: 10px;
+    color: #647a8d;
+    line-height: 1.3;
+  }
+
+  &:hover {
+    background: #edf4f9;
+    border-color: #b8d1e3;
+  }
+
+  &.ativa {
+    background: #eef6fc;
+    border-color: #758e9d;
+
+    .opcao-acessibilidade__nome {
+      color: #174263;
+    }
+  }
+}
+
+/* Switch / Toggle estilizado */
+.interruptor {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  background: #cbd8e2;
+  border-radius: 20px;
+  transition: background 150ms ease;
+  flex-shrink: 0;
+
+  &__circulo {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: transform 150ms ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  &.ligado {
+    background: #2563eb;
+
+    .interruptor__circulo {
+      transform: translateX(16px);
+    }
+  }
+}
+
+/* Seção de controle de tamanho da fonte */
+.secao-fonte {
+  padding: 10px 12px;
+  border: 1px solid #e3edf5;
+  border-radius: 10px;
+  background: #f7fafc;
+
+  &__cabecalho {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .opcao-acessibilidade__nome {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1f374a;
+  }
+
+  small {
+    font-size: 10px;
+    color: #647a8d;
+  }
+
+  &__botoes {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .btn-ajuste-fonte {
+    flex: 1;
+    min-height: 30px;
+    padding: 4px 8px;
+    border: 1px solid #c7dbe8;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #285879;
+    font-size: 11px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: all 120ms ease;
+
+    &:hover:not(:disabled) {
+      background: #285879;
+      color: #ffffff;
+      border-color: #285879;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &.btn-padrao {
+      font-size: 10px;
+      color: #556c80;
+    }
+  }
+}
+
+@keyframes surgimento {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .painel-acessibilidade {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(300px, calc(100vw - 32px));
+  }
+}

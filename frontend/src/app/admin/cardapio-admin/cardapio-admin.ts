@@ -3,11 +3,12 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { CardapioService } from '../../services/cardapio.service';
+import { BotaoAcessibilidade } from '../../compartilhados/botao-acessibilidade/botao-acessibilidade';
 
 @Component({
   selector: 'app-cardapio-admin',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, BotaoAcessibilidade],
   templateUrl: './cardapio-admin.html',
   styleUrl: './cardapio-admin.scss',
 })
@@ -17,7 +18,7 @@ export class CardapioAdmin {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  diaSelecionado = 2;
+  diaSelecionado = 0;
   mensagem = '';
   tituloInformacao = '';
   erro = false;
@@ -54,7 +55,7 @@ export class CardapioAdmin {
 
     this.erro = !sucesso;
     this.mensagem = sucesso
-      ? `${titulo} de ${this.diaAtual.nome.toLowerCase()} salvo. Publique a semana para atualizar a página pública.`
+      ? `${titulo} de ${this.diaAtual.nome.toLowerCase()} salvo no rascunho. Para que as alterações apareçam no cardápio público, clique em "Publicar Cardápio da Semana" abaixo.`
       : 'Selecione pelo menos um alimento antes de salvar.';
   }
 
@@ -63,8 +64,8 @@ export class CardapioAdmin {
 
     this.erro = !sucesso;
     this.mensagem = sucesso
-      ? 'Semana publicada nesta demonstração! A página pública de Cardápio foi atualizada.'
-      : 'Existem alterações não salvas. Confira os dias da semana e clique em Salvar Seleção nas refeições alteradas.';
+      ? 'Cardápio da semana publicado com sucesso! Todos os alimentos selecionados agora estão disponíveis na página pública.'
+      : 'Selecione pelo menos um alimento para cada refeição antes de publicar o cardápio.';
   }
 
   abrirAdicionar(refeicaoId: string): void {
@@ -81,9 +82,10 @@ export class CardapioAdmin {
     refeicaoId: string,
     campo: HTMLInputElement,
   ): void {
+    const nome = campo.value;
     const erro = this.cardapio.adicionarAlimento(
       refeicaoId,
-      campo.value,
+      nome,
     );
 
     if (erro) {
@@ -92,10 +94,20 @@ export class CardapioAdmin {
       return;
     }
 
+    const alimentoLimpo = nome.trim().replace(/\s+/g, ' ');
+
+    // Seleciona automaticamente o novo alimento para a refeição do dia que está sendo editado
+    this.cardapio.alterar(
+      this.diaSelecionado,
+      refeicaoId,
+      alimentoLimpo,
+      true,
+    );
+
     this.cancelarAdicionar();
     this.erro = false;
     this.mensagem =
-      'Alimento adicionado à lista. Marque-o nos dias desejados, salve a seleção e publique a semana.';
+      `"${alimentoLimpo}" foi adicionado e selecionado! Clique em "Publicar Cardápio da Semana" para disponibilizá-lo na página pública.`;
   }
 
   sair(): void {

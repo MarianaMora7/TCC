@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 // =====================================================
@@ -120,8 +121,11 @@ export class CardapioService {
     ),
   );
 
+  // Rascunho com o que o admin está selecionando em tela
   private readonly rascunho = signal(copiar(this.inicial));
+  // Salvo temporariamente em edição no painel administrativo
   private readonly salvo = signal(copiar(this.inicial));
+  // Efetivamente publicado para visualização na página pública de Cardápio
   private readonly publicado = signal(copiar(this.inicial));
 
   readonly semanaPublicada = this.publicado.asReadonly();
@@ -129,6 +133,27 @@ export class CardapioService {
   constructor() {
     this.carregarCardapioDoBackend();
     this.carregarOpcoesDoBackend();
+  }
+
+  private isBrowser(): boolean {
+    return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+  }
+
+  private salvarNoLocalStorage(chave: string, valor: any): void {
+    if (!this.isBrowser()) return;
+    try {
+      localStorage.setItem(chave, JSON.stringify(valor));
+    } catch { }
+  }
+
+  private lerDoLocalStorage<T>(chave: string): T | null {
+    if (!this.isBrowser()) return null;
+    try {
+      const item = localStorage.getItem(chave);
+      return item ? JSON.parse(item) : null;
+    } catch {
+      return null;
+    }
   }
 
   private calcularDiasSemana(): DiaSemana[] {
@@ -162,13 +187,23 @@ export class CardapioService {
     });
   }
 
-  // Sincroniza os itens do backend para o estado local
+  // Sincroniza os itens publicados do backend ou localStorage para o estado local
   private carregarCardapioDoBackend(): void {
+    // 1. Tenta carregar do cache local publicado previamente
+    const cachePublicado = this.lerDoLocalStorage<SelecaoSemana>('cardapio_publicado');
+    if (cachePublicado && Array.isArray(cachePublicado) && cachePublicado.length === 5) {
+      this.publicado.set(copiar(cachePublicado));
+      this.salvo.set(copiar(cachePublicado));
+      this.rascunho.set(copiar(cachePublicado));
+    }
+
+    // 2. Consulta o backend para carregar os dados persistidos no banco
     this.buscarTodos().subscribe({
       next: (itens) => {
         if (!itens || itens.length === 0) return;
 
-        const novaSemana = copiar(this.rascunho());
+        const novaSemana = copiar(this.publicado());
+        let encontrouItens = false;
 
         this.dias.forEach((dia, diaIdx) => {
           this.refeicoes.forEach((refeicao) => {
@@ -180,6 +215,7 @@ export class CardapioService {
               .map((item) => item.comida);
 
             if (itensDoDia.length > 0) {
+              encontrouItens = true;
               novaSemana[diaIdx][refeicao.id] = itensDoDia;
 
               // Adiciona as opções se não existirem na lista de opções
@@ -192,9 +228,12 @@ export class CardapioService {
           });
         });
 
-        this.rascunho.set(copiar(novaSemana));
-        this.salvo.set(copiar(novaSemana));
-        this.publicado.set(copiar(novaSemana));
+        if (encontrouItens) {
+          this.publicado.set(copiar(novaSemana));
+          this.salvo.set(copiar(novaSemana));
+          this.rascunho.set(copiar(novaSemana));
+          this.salvarNoLocalStorage('cardapio_publicado', novaSemana);
+        }
       },
       error: (err) => {
         console.warn('Backend indisponível no momento para cardápio. Usando dados locais.', err);
@@ -203,6 +242,16 @@ export class CardapioService {
   }
 
   private carregarOpcoesDoBackend(): void {
+    const opcoesLocais = this.lerDoLocalStorage<{ refeicao_id: string; nome: string }[]>('cardapio_opcoes_extras');
+    if (opcoesLocais && Array.isArray(opcoesLocais)) {
+      opcoesLocais.forEach((op) => {
+        const refeicao = this.refeicoes.find((r) => r.id === op.refeicao_id);
+        if (refeicao && !refeicao.opcoes.includes(op.nome)) {
+          refeicao.opcoes.push(op.nome);
+        }
+      });
+    }
+
     this.buscarOpcoes().subscribe({
       next: (opcoes) => {
         if (!opcoes || opcoes.length === 0) return;
@@ -252,6 +301,10 @@ export class CardapioService {
     return JSON.stringify(atual) !== JSON.stringify(salvo);
   }
 
+  /**
+   * Salva a seleção de uma refeição específica no rascunho administrativo.
+   * Não altera o cardápio público até que o botão "Publicar cardápio da semana" seja acionado.
+   */
   salvar(dia: number, refeicao: string): boolean {
     const itens = this.rascunho()[dia]?.[refeicao] || [];
 
@@ -265,54 +318,94 @@ export class CardapioService {
       return nova;
     });
 
-    // Envia para o backend
-    const diaObj = this.dias[dia];
-    const refeicaoObj = this.refeicoes.find((r) => r.id === refeicao);
-
-    if (diaObj && refeicaoObj) {
-      this.salvarRefeicao(diaObj.dataApi, refeicaoObj.horaIndex, itens).subscribe({
-        next: () => {
-          console.log(`✅ Refeição ${refeicaoObj.titulo} de ${diaObj.nome} salva no backend.`);
-        },
-        error: (err) => {
-          console.error('❌ Erro ao sincronizar refeição no backend:', err);
-        },
-      });
-    }
-
     return true;
   }
 
+  /**
+   * Publica efetivamente a semana inteira no cardápio público.
+   * Pega todos os alimentos selecionados (rascunho atual),
+   * atualiza a página pública e persiste no backend e localStorage.
+   */
   publicar(): boolean {
-    const pendente = this.dias.some((_, dia) =>
-      this.refeicoes.some((refeicao) => this.temAlteracoes(dia, refeicao.id)),
+    const semanaAtual = copiar(this.rascunho());
+
+    // Valida se alguma refeição ficou sem nenhum item selecionado
+    const temRefeicaoVazia = this.dias.some((_, diaIdx) =>
+      this.refeicoes.some((ref) => {
+        const itens = semanaAtual[diaIdx]?.[ref.id] || [];
+        return itens.length === 0;
+      })
     );
 
-    if (pendente) {
+    if (temRefeicaoVazia) {
       return false;
     }
 
-    this.publicado.set(copiar(this.salvo()));
+    // Atualiza o estado salvo e o estado publicado com todos os alimentos selecionados
+    this.salvo.set(copiar(semanaAtual));
+    this.publicado.set(copiar(semanaAtual));
+    this.salvarNoLocalStorage('cardapio_publicado', semanaAtual);
 
-    // Salva semana completa de forma atômica e ordenada no backend (garante IDs na ordem correta)
+    // Envia a semana completa para o backend salvar de forma ordenada no banco de dados
     const semanaCompleta = this.dias.map((dia, diaIdx) => ({
       dia: dia.dataApi,
       refeicoes: this.refeicoes.map((ref) => ({
         hora: ref.horaIndex,
-        comidas: this.salvo()[diaIdx][ref.id] || [],
+        comidas: semanaAtual[diaIdx][ref.id] || [],
       })),
     }));
 
     this.salvarSemanaCompleta(semanaCompleta).subscribe({
       next: () => {
-        console.log('✅ Semana completa do cardápio salva e IDs organizados com sucesso.');
+        console.log('✅ Semana completa do cardápio publicada no backend com sucesso.');
       },
       error: (err) => {
-        console.warn('Backend indisponível no momento para salvar semana. Mantendo estado local.', err);
+        console.warn('Backend indisponível no momento para salvar semana. Mantendo estado publicado local.', err);
       },
     });
 
     return true;
+  }
+
+  /**
+   * Retorna os alimentos publicados para um dia e refeição específicos.
+   * Utilizado pelo componente público Cardápio.
+   */
+  obterAlimentosPublicados(diaIndex: number, refeicaoIdOuHora: string | number): string[] {
+    const semana = this.publicado();
+    if (!semana || !semana[diaIndex]) return [];
+
+    let chave = '';
+    if (typeof refeicaoIdOuHora === 'number') {
+      chave = refeicaoIdOuHora === 0 ? 'manha' : refeicaoIdOuHora === 1 ? 'almoco' : 'tarde';
+    } else {
+      chave = refeicaoIdOuHora;
+    }
+
+    return semana[diaIndex][chave] || [];
+  }
+
+  /**
+   * Retorna a lista plana de ItemCardapio correspondente aos alimentos publicados.
+   */
+  obterItensCardapioPublicados(): ItemCardapio[] {
+    const semana = this.publicado();
+    const itens: ItemCardapio[] = [];
+
+    this.dias.forEach((dia, diaIdx) => {
+      this.refeicoes.forEach((ref) => {
+        const comidas = semana[diaIdx]?.[ref.id] || [];
+        comidas.forEach((comida) => {
+          itens.push({
+            dia: dia.dataApi,
+            hora: ref.horaIndex,
+            comida,
+          });
+        });
+      });
+    });
+
+    return itens;
   }
 
   adicionarAlimento(refeicaoId: string, nome: string): string | null {
@@ -347,8 +440,15 @@ export class CardapioService {
 
     refeicao.opcoes = [...refeicao.opcoes, alimento];
 
+    // Persiste no cache local de opções extras
+    const extras = this.lerDoLocalStorage<{ refeicao_id: string; nome: string }[]>('cardapio_opcoes_extras') || [];
+    extras.push({ refeicao_id: refeicaoId, nome: alimento });
+    this.salvarNoLocalStorage('cardapio_opcoes_extras', extras);
+
     // Registra no backend
-    this.adicionarOpcao(refeicaoId, alimento).subscribe();
+    this.adicionarOpcao(refeicaoId, alimento).pipe(
+      catchError(() => of(null))
+    ).subscribe();
 
     return null;
   }

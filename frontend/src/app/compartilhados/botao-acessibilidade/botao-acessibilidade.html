@@ -1,0 +1,146 @@
+<div class="acessibilidade-container">
+  <button
+    type="button"
+    class="botao-gatilho"
+    [class.ativo]="menuAberto()"
+    [attr.aria-expanded]="menuAberto()"
+    aria-haspopup="dialog"
+    aria-label="Abrir menu de recursos de acessibilidade"
+    (click)="alternarMenu()"
+  >
+    <span class="icone-acessibilidade" aria-hidden="true">♿</span>
+    <span class="texto-acessibilidade">Acessibilidade</span>
+  </button>
+
+  @if (menuAberto()) {
+    <div
+      class="painel-acessibilidade"
+      role="dialog"
+      aria-label="Painel de preferências de acessibilidade"
+      aria-modal="false"
+    >
+      <header class="painel-acessibilidade__topo">
+        <div class="painel-acessibilidade__titulo">
+          <span aria-hidden="true">♿</span>
+          <strong>Acessibilidade</strong>
+        </div>
+
+        <button
+          type="button"
+          class="btn-fechar"
+          aria-label="Fechar painel de acessibilidade"
+          (click)="fecharMenu()"
+        >
+          ✕
+        </button>
+      </header>
+
+      <div class="painel-acessibilidade__corpo">
+        <!-- Alto Contraste -->
+        <button
+          type="button"
+          class="opcao-acessibilidade"
+          [class.ativa]="acessibilidade.altoContraste()"
+          [attr.aria-pressed]="acessibilidade.altoContraste()"
+          (click)="acessibilidade.alternarAltoContraste()"
+        >
+          <div class="opcao-acessibilidade__info">
+            <span class="opcao-acessibilidade__icone" aria-hidden="true">🌓</span>
+            <div>
+              <span class="opcao-acessibilidade__nome">Alto Contraste</span>
+              <small>Fundo escuro e máxima nitidez</small>
+            </div>
+          </div>
+
+          <span class="interruptor" [class.ligado]="acessibilidade.altoContraste()" aria-hidden="true">
+            <span class="interruptor__circulo"></span>
+          </span>
+        </button>
+
+        <!-- Modo Daltonismo -->
+        <button
+          type="button"
+          class="opcao-acessibilidade"
+          [class.ativa]="acessibilidade.modoDaltonismo()"
+          [attr.aria-pressed]="acessibilidade.modoDaltonismo()"
+          (click)="acessibilidade.alternarModoDaltonismo()"
+        >
+          <div class="opcao-acessibilidade__info">
+            <span class="opcao-acessibilidade__icone" aria-hidden="true">👁️</span>
+            <div>
+              <span class="opcao-acessibilidade__nome">Modo Daltonismo</span>
+              <small>Cores e símbolos inclusivos</small>
+            </div>
+          </div>
+
+          <span class="interruptor" [class.ligado]="acessibilidade.modoDaltonismo()" aria-hidden="true">
+            <span class="interruptor__circulo"></span>
+          </span>
+        </button>
+
+        <!-- Tamanho do Texto -->
+        <div class="secao-fonte">
+          <div class="secao-fonte__cabecalho">
+            <span class="opcao-acessibilidade__icone" aria-hidden="true">🔤</span>
+            <div>
+              <span class="opcao-acessibilidade__nome">Tamanho do Texto</span>
+              <small>Atual: {{ acessibilidade.tamanhoFonte() }}%</small>
+            </div>
+          </div>
+
+          <div class="secao-fonte__botoes" role="group" aria-label="Ajuste de tamanho do texto">
+            <button
+              type="button"
+              class="btn-ajuste-fonte"
+              aria-label="Diminuir tamanho da fonte"
+              (click)="acessibilidade.diminuirFonte()"
+              [disabled]="acessibilidade.tamanhoFonte() <= 90"
+            >
+              A-
+            </button>
+
+            <button
+              type="button"
+              class="btn-ajuste-fonte btn-padrao"
+              aria-label="Restaurar tamanho de fonte padrão 100%"
+              (click)="acessibilidade.redefinirFonte()"
+            >
+              100%
+            </button>
+
+            <button
+              type="button"
+              class="btn-ajuste-fonte"
+              aria-label="Aumentar tamanho da fonte"
+              (click)="acessibilidade.aumentarFonte()"
+              [disabled]="acessibilidade.tamanhoFonte() >= 130"
+            >
+              A+
+            </button>
+          </div>
+        </div>
+
+        <!-- Fonte Legível (Dislexia / Baixa visão) -->
+        <button
+          type="button"
+          class="opcao-acessibilidade"
+          [class.ativa]="acessibilidade.fonteLegivel()"
+          [attr.aria-pressed]="acessibilidade.fonteLegivel()"
+          (click)="acessibilidade.alternarFonteLegivel()"
+        >
+          <div class="opcao-acessibilidade__info">
+            <span class="opcao-acessibilidade__icone" aria-hidden="true">📖</span>
+            <div>
+              <span class="opcao-acessibilidade__nome">Fonte Legível</span>
+              <small>Espaçamento para dislexia e foco</small>
+            </div>
+          </div>
+
+          <span class="interruptor" [class.ligado]="acessibilidade.fonteLegivel()" aria-hidden="true">
+            <span class="interruptor__circulo"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  }
+</div>

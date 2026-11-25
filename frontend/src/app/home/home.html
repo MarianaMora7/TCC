@@ -1,6 +1,6 @@
 <header class="cabecalho">
   <div class="container cabecalho__conteudo">
-    <a class="marca" href="#" aria-label="Página inicial">
+    <a class="marca" routerLink="/home" aria-label="Página inicial da E.E. Monsenhor Bicudo">
 
       <span>
         <strong>E.E. MONSENHOR BICUDO</strong>
@@ -9,13 +9,17 @@
     </a>
 
     <nav aria-label="Menu principal">
-      <a class="ativo" href="#">Início</a>
-      <a routerLink="/cardapio">Cardápio</a>
-      <a routerLink="/avisos">Avisos</a>
-      <a routerLink="/sobre">Sobre nós</a>
+      <a routerLink="/home" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">Início</a>
+      <a routerLink="/cardapio" routerLinkActive="ativo" ariaCurrentWhenActive="page">Cardápio</a>
+      <a routerLink="/avisos" routerLinkActive="ativo" ariaCurrentWhenActive="page">Avisos</a>
+      <a routerLink="/calendario" routerLinkActive="ativo" ariaCurrentWhenActive="page">Calendário</a>
+      <a routerLink="/sobre" routerLinkActive="ativo" ariaCurrentWhenActive="page">Sobre nós</a>
     </nav>
 
-    <a class="botao-admin" routerLink="/admin">Admin</a>
+    <div class="acoes-cabecalho">
+      <app-botao-acessibilidade></app-botao-acessibilidade>
+      <a class="botao-admin" routerLink="/admin">Admin</a>
+    </div>
   </div>
 </header>
 

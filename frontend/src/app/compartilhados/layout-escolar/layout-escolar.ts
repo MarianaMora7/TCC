@@ -6,11 +6,12 @@ import {
 } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
+import { BotaoAcessibilidade } from '../botao-acessibilidade/botao-acessibilidade';
 
 @Component({
   selector: 'app-layout-escolar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, BotaoAcessibilidade],
   templateUrl: './layout-escolar.html',
   styleUrl: './layout-escolar.scss',
 })

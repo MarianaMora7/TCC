@@ -61,13 +61,16 @@
       </a>
     </nav>
 
-    @if (administrativo) {
-      <button class="admin" type="button" (click)="sair()">
-        Sair
-      </button>
-    } @else {
-      <a class="admin" routerLink="/admin">Admin</a>
-    }
+    <div class="acoes-cabecalho">
+      <app-botao-acessibilidade></app-botao-acessibilidade>
+      @if (administrativo) {
+        <button class="admin" type="button" (click)="sair()">
+          Sair
+        </button>
+      } @else {
+        <a class="admin" routerLink="/admin">Admin</a>
+      }
+    </div>
   </div>
 </header>
   

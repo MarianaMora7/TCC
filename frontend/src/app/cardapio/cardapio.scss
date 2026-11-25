@@ -1,5 +1,5 @@
 $azul: #758e9d;
-$azul-texto: #6e899d;
+$azul-texto: #647f94;
 $texto: #263122;
 $cinza: #7c8b99;
 $borda: #dfe7f0;
@@ -37,6 +37,7 @@ a {
 
 button {
   font: inherit;
+  cursor: pointer;
 }
 
 .cabecalho {
@@ -48,7 +49,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
+    gap: 20px;
   }
 
   nav {
@@ -57,17 +58,21 @@ button {
     gap: 24px;
 
     a {
+      display: inline-block;
       padding-block: 8px;
       font-size: 12px;
       color: $cinza;
+      border-bottom: 2px solid transparent;
+      line-height: 1.5;
 
       &:hover,
       &.ativo {
-        color: #315a7d;
+        color: #285879;
       }
 
       &.ativo {
         font-weight: 700;
+        border-bottom-color: #285879;
       }
     }
   }
@@ -77,13 +82,6 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-
-  img {
-    display: block;
-    width: 67px;
-    height: 48px;
-    object-fit: cover;
-  }
 
   span {
     display: flex;
@@ -103,6 +101,12 @@ button {
   }
 }
 
+.acoes-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .admin {
   padding: 7px 15px;
   border-radius: 6px;
@@ -110,6 +114,7 @@ button {
   color: white;
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
 
   &:hover {
     background: #607c8c;
@@ -118,6 +123,7 @@ button {
 
 main {
   flex: 1;
+  outline: none;
 }
 
 .semana {
@@ -142,7 +148,6 @@ main {
   background: white;
   color: $azul-texto;
   font-size: 25px;
-  cursor: pointer;
 
   &:hover:not(:disabled) {
     background: $azul-claro;
@@ -174,7 +179,6 @@ main {
   border-radius: 10px;
   background: transparent;
   color: $texto;
-  cursor: pointer;
   transition: background 150ms ease, color 150ms ease;
 
   span {
@@ -295,11 +299,6 @@ main {
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.14);
     font-size: 27px;
-
-    
-    svg{
-      height: 30px;
-    }
   }
 
   h2 {
@@ -337,7 +336,7 @@ main {
   align-items: start;
   gap: 20px;
   width: min(calc(100% - 32px), 1160px);
-  margin: 80px auto 26px;
+  margin: 40px auto 26px;
 }
 
 .refeicao {
@@ -399,6 +398,14 @@ main {
     &::before {
       content: "•";
     }
+
+    &.vazio {
+      color: $cinza;
+      font-style: italic;
+      &::before {
+        content: "";
+      }
+    }
   }
 
   &__mensagem {
@@ -429,6 +436,7 @@ main {
   padding: 40px 0 34px;
   background: $azul;
   color: #dde6ec;
+  margin-top: auto;
 
   &__grade {
     display: grid;
@@ -523,7 +531,7 @@ main {
   .cabecalho {
     &__conteudo {
       flex-wrap: wrap;
-      gap: 18px;
+      gap: 16px;
       padding-block: 14px;
     }
 
@@ -531,23 +539,13 @@ main {
       order: 3;
       width: 100%;
       justify-content: center;
-      gap: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
   }
 
-  .marca {
-    img {
-      width: 48px;
-      height: 38px;
-    }
-
-    strong {
-      font-size: 11px;
-    }
-
-    small {
-      font-size: 7px;
-    }
+  .acoes-cabecalho {
+    gap: 8px;
   }
 
   .semana {
@@ -559,9 +557,9 @@ main {
   }
 
   .seta {
-    flex-basis: 25px;
-    width: 25px;
-    height: 25px;
+    flex-basis: 28px;
+    width: 28px;
+    height: 28px;
     font-size: 20px;
   }
 
@@ -580,16 +578,6 @@ main {
 
     strong {
       font-size: 10px;
-    }
-  }
-
-  .data-selecionada {
-    h1 {
-      font-size: 16px;
-    }
-
-    p {
-      font-size: 11px;
     }
   }
 
@@ -623,10 +611,6 @@ main {
     margin-bottom: 30px;
   }
 
-  .refeicao {
-    padding: 20px;
-  }
-
   .rodape {
     padding-block: 30px;
 
@@ -640,21 +624,5 @@ main {
       align-items: flex-start;
       gap: 16px;
     }
-  }
-}
-
-.cabecalho nav a {
-  display: inline-block;
-  padding-block: 8px;
-  border-bottom: 2px solid transparent;
-  box-shadow: none;
-  text-decoration: none;
-  line-height: 1.5;
-
-  &.ativo {
-    color: #285879;
-    font-weight: 700;
-    border-bottom-color: #285879;
-    box-shadow: none;
   }
 }
